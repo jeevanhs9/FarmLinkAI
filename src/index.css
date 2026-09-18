@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+  --color-forest-950: #0d2417;
+  --color-forest-900: #123420;
+  --color-forest-800: #16462a;
+  --color-forest-700: #1c5834;
+  --color-forest-600: #256e41;
+  --color-forest-500: #2f8650;
+  --color-leaf-500: #4f9d5c;
+  --color-leaf-400: #6fb578;
+  --color-leaf-300: #9bcd9f;
+  --color-leaf-100: #dcefdd;
+  --color-leaf-50: #f1f8f1;
+
+  --color-sand-50: #faf9f5;
+  --color-sand-100: #f4f2ea;
+
+  --color-clay-500: #c96a3a;
+  --color-clay-100: #f6e3d6;
+
+  --color-amber-500: #c78a1f;
+  --color-amber-100: #f7ecd2;
+
+  --color-ink-900: #1b211d;
+  --color-ink-700: #3c453e;
+  --color-ink-500: #6b756e;
+  --color-ink-300: #a7b0a9;
+  --color-ink-200: #d8ddd8;
+  --color-ink-100: #ecefeb;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-sand-50);
+  color: var(--color-ink-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background: var(--color-leaf-300);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-ink-200); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-300); }
+
+.card {
+  background: white;
+  border: 1px solid var(--color-ink-100);
+  border-radius: 10px;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-forest-600);
+  outline-offset: 2px;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.route-marker { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid white; border-radius: 50%; color: white; font-size: 12px; font-weight: 700; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); }
+.route-marker-pickup { background: var(--color-clay-500); }
+.route-marker-delivery { background: var(--color-forest-700); }
+
+.logistics-marker { display:flex; align-items:center; gap:5px; border:2px solid white; border-radius:999px; padding:4px 8px 4px 4px; color:white; font:600 11px var(--font-sans); box-shadow:0 2px 8px rgb(0 0 0 / 24%); white-space:nowrap; }
+.logistics-marker b { display:grid; place-items:center; width:19px; height:19px; border-radius:50%; background:white; color:var(--color-forest-800); }
+.logistics-marker.pickup { background:var(--color-clay-500); }
+.logistics-marker.delivery { background:var(--color-forest-700); }
+.logistics-truck { display:grid; place-items:center; width:32px; height:32px; border-radius:50%; background:white; border:2px solid var(--color-forest-700); box-shadow:0 2px 8px rgb(0 0 0 / 24%); font-size:17px; }
