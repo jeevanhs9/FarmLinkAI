@@ -39,28 +39,42 @@ export default function Sidebar({ mobileOpen, onClose }) {
   const { user, logout } = useApp()
   const items = NAV[user?.role] ?? []
 
+  const roleLabels = {
+    farmer: 'Farmer / FPO',
+    buyer: 'Buyer Workspace',
+    logistics: 'Logistics',
+    admin: 'Platform Admin',
+  }
+
   return (
     <>
       {mobileOpen && (
-        <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={onClose} />
+        <div className="fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-30 lg:hidden transition-opacity" onClick={onClose} />
       )}
       <aside
-        className={`fixed lg:sticky top-0 z-40 h-screen w-64 shrink-0 bg-forest-900 text-leaf-50 flex flex-col transition-transform duration-200
+        className={`fixed lg:sticky top-0 z-40 h-screen w-64 shrink-0 bg-forest-900 text-leaf-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
-        <div className="flex items-center justify-between px-5 h-16 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-leaf-500 flex items-center justify-center">
-              <Sprout size={18} className="text-forest-900" strokeWidth={2.5} />
+        <div className="flex items-center justify-between px-5 py-5 border-b border-white/10 shrink-0">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-leaf-400 to-leaf-600 flex items-center justify-center shadow-inner">
+                <Sprout size={20} className="text-forest-950" strokeWidth={2.5} />
+              </div>
+              <span className="font-display font-bold text-white text-lg tracking-tight">FarmLink AI</span>
             </div>
-            <span className="font-display font-bold text-white text-[15px] tracking-tight">FarmLink AI</span>
+            {user?.role && (
+              <span className="inline-flex items-center rounded-full bg-forest-800/50 border border-leaf-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-leaf-300 w-max">
+                {roleLabels[user.role]}
+              </span>
+            )}
           </div>
-          <button className="lg:hidden text-white/70" onClick={onClose} aria-label="Close menu">
+          <button className="lg:hidden text-white/70 hover:text-white transition-colors" onClick={onClose} aria-label="Close menu">
             <X size={20} />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto py-5 px-3 space-y-1">
           {items.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -68,23 +82,36 @@ export default function Sidebar({ mobileOpen, onClose }) {
               end={end}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus-ring
-                 ${isActive ? 'bg-forest-700 text-white' : 'text-leaf-100/80 hover:bg-forest-800 hover:text-white'}`
+                `group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all focus-ring
+                 ${isActive
+                    ? 'bg-forest-800 text-white shadow-inner relative before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:bg-leaf-400 before:rounded-r-full'
+                    : 'text-leaf-100/70 hover:bg-forest-800/50 hover:text-white'}`
               }
             >
-              <Icon size={17} strokeWidth={2} />
-              {label}
+              {({ isActive }) => (
+                <>
+                  <Icon size={18} strokeWidth={2.5} className={`transition-colors ${isActive ? 'text-leaf-400' : 'text-leaf-100/50 group-hover:text-leaf-300'}`} />
+                  {label}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
 
-        <div className="p-3 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 shrink-0 bg-forest-950/20">
+          <div className="flex items-center gap-3 px-2 mb-4">
+            <img src={user?.avatar} alt="" className="h-10 w-10 rounded-full object-cover border-2 border-forest-700 bg-forest-800" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+              <p className="text-xs text-leaf-100/60 truncate">{user?.phone || 'Demo User'}</p>
+            </div>
+          </div>
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-leaf-100/80 hover:bg-forest-800 hover:text-white transition-colors focus-ring"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-leaf-100/70 border border-white/10 hover:bg-white/5 hover:text-white transition-colors focus-ring"
           >
-            <LogOut size={17} />
-            Logout
+            <LogOut size={16} />
+            Sign out
           </button>
         </div>
       </aside>

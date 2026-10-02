@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CheckCircle2, Info } from 'lucide-react'
+import { CheckCircle2, Info, TrendingUp, Target, MapPin, Clock } from 'lucide-react'
 import ChartCard from '../../components/charts/ChartCard'
 import DemandForecastChart from '../../components/charts/DemandForecastChart'
 import Badge from '../../components/ui/Badge'
@@ -10,7 +10,14 @@ import PriceTrendChart from '../../components/charts/PriceTrendChart'
 import { priceTrend } from '../../data/insights'
 import { demandTone } from '../../utils/demand'
 
-const SELECT_CLASS = 'px-3 py-2 rounded-lg border border-ink-200 text-sm bg-white focus-ring focus:border-forest-500'
+const SELECT_CLASS = 'pl-4 pr-8 py-2.5 rounded-xl border border-ink-200 bg-white text-sm font-semibold focus-ring focus:border-forest-500 appearance-none cursor-pointer transition-colors hover:bg-sand-50'
+
+const FACTORS = [
+  ['Historical demand', 82], ['Market price trend', 64], ['Seasonality', 56],
+  ['Local demand', 76], ['Available supply', 42], ['Weather signal (demo)', 48],
+]
+
+const PIPELINE = ['Market data', 'Crop data', 'Weather / seasonality', 'Historical orders', 'Data processing', 'ML model', 'Demand forecast', 'Price recommendation']
 
 export default function AIInsights() {
   const [crop, setCrop] = useState(insightCrops[0])
@@ -21,108 +28,138 @@ export default function AIInsights() {
 
   useEffect(() => {
     let active = true
+    setForecast(null)
     aiService.forecast(crop, location, windowLabel).then((data) => {
       if (active) setForecast(data)
     }).catch(() => {
-      if (active) setError('Forecast data could not be loaded. Please try changing the filters again.')
+      if (active) setError('Forecast data could not be loaded. Try adjusting filters.')
     })
     return () => { active = false }
   }, [crop, location, windowLabel])
 
+  const resetFilter = (setter, val) => { setForecast(null); setError(''); setter(val) }
+
   return (
-    <div className="space-y-5">
-      <div>
-        <h2 className="font-display text-lg font-semibold text-ink-900">AI Demand Forecast</h2>
-        <p className="text-sm text-ink-500 mt-1">See what the market needs. Plan your harvest. Get better prices.</p>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-ink-900 tracking-tight">AI Demand Forecast</h2>
+          <p className="text-sm font-medium text-ink-500 mt-1">See what the market needs. Plan your harvest. Get better prices.</p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {[
+            { id: 'insight-crop', label: 'Crop', value: crop, setter: setCrop, options: insightCrops },
+            { id: 'insight-location', label: 'Market location', value: location, setter: setLocation, options: insightLocations },
+            { id: 'insight-window', label: 'Forecast period', value: windowLabel, setter: setWindowLabel, options: insightWindows },
+          ].map(({ id, label, value, setter, options }) => (
+            <div key={id} className="relative">
+              <label className="sr-only" htmlFor={id}>{label}</label>
+              <select id={id} className={SELECT_CLASS} value={value} onChange={(e) => resetFilter(setter, e.target.value)}>
+                {options.map((o) => <option key={o}>{o}</option>)}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <label className="sr-only" htmlFor="insight-crop">Crop</label>
-        <select id="insight-crop" className={SELECT_CLASS} value={crop} onChange={(e) => { setForecast(null); setError(''); setCrop(e.target.value) }}>
-          {insightCrops.map((c) => <option key={c}>{c}</option>)}
-        </select>
-        <label className="sr-only" htmlFor="insight-location">Market location</label>
-        <select id="insight-location" className={SELECT_CLASS} value={location} onChange={(e) => { setForecast(null); setError(''); setLocation(e.target.value) }}>
-          {insightLocations.map((l) => <option key={l}>{l}</option>)}
-        </select>
-        <label className="sr-only" htmlFor="insight-window">Forecast period</label>
-        <select id="insight-window" className={SELECT_CLASS} value={windowLabel} onChange={(e) => { setForecast(null); setError(''); setWindowLabel(e.target.value) }}>
-          {insightWindows.map((w) => <option key={w}>{w}</option>)}
-        </select>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-5">
-        <ChartCard title="Historical demand vs predicted demand" subtitle="Prototype forecast using demo historical data" className="lg:col-span-2">
+      <div className="grid lg:grid-cols-[1fr_320px] gap-5 lg:gap-6">
+        <ChartCard title="Demand Forecast" subtitle="Prototype forecast using demo historical data">
           {!forecast ? (
-            <div className="h-[260px] flex items-center justify-center text-sm text-ink-500" role="status">{error || 'Loading forecast…'}</div>
+            <div className="h-[280px] flex flex-col items-center justify-center gap-3">
+              <div className="h-10 w-10 rounded-full border-2 border-forest-200 border-t-forest-600 animate-spin" />
+              <p className="text-sm font-medium text-ink-500">{error || 'Loading forecast…'}</p>
+            </div>
           ) : (
             <DemandForecastChart data={forecast.series} />
           )}
         </ChartCard>
 
-        <div className="card p-4">
-          <h3 className="font-display font-semibold text-sm text-ink-900 mb-3">AI Recommendation</h3>
-          {forecast ? (
-            <div className="space-y-2.5 text-sm">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-forest-600 shrink-0" />
-                <span className="text-ink-700">Demand: </span>
-                <Badge tone={demandTone(forecast.demand)}>{forecast.demand}</Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-forest-600 shrink-0" />
-                <span className="text-ink-700">Suggested Price: <b className="text-ink-900">{formatINR(forecast.priceRange[0])} – {formatINR(forecast.priceRange[1])}</b></span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-forest-600 shrink-0" />
-                <span className="text-ink-700">Recommended Quantity: <b className="text-ink-900">{forecast.recommendedQuantity} kg</b></span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-forest-600 shrink-0" />
-                <span className="text-ink-700">Best Market: <b className="text-ink-900">{forecast.bestMarket}</b></span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={15} className="text-forest-600 shrink-0" />
-                <span className="text-ink-700">Best Selling Window: <b className="text-ink-900">{forecast.bestWindow}</b></span>
-              </div>
+        <div className="card p-6 bg-white flex flex-col">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="h-8 w-8 rounded-lg bg-forest-50 text-forest-700 border border-leaf-100 flex items-center justify-center">
+              <TrendingUp size={16} />
+            </div>
+            <h3 className="font-display font-bold text-base text-ink-900 tracking-tight">AI Recommendation</h3>
+          </div>
 
-              <div className="mt-3 p-3 rounded-lg bg-leaf-50 text-forest-800 text-xs leading-relaxed">
-                {crop} demand is expected to increase by {forecast.changePct}% in {location} over the {windowLabel.toLowerCase()}.
+          {forecast ? (
+            <div className="space-y-4 flex-1">
+              {[
+                { icon: TrendingUp, label: 'Market Demand', content: <Badge tone={demandTone(forecast.demand)} rounded="rounded-full">{forecast.demand}</Badge> },
+                { icon: Target, label: 'Suggested Price Range', content: <span className="font-display font-bold text-ink-900 text-sm">{formatINR(forecast.priceRange[0])} – {formatINR(forecast.priceRange[1])}</span> },
+                { icon: CheckCircle2, label: 'Target Quantity', content: <span className="font-display font-bold text-ink-900 text-sm">{forecast.recommendedQuantity} kg</span> },
+                { icon: MapPin, label: 'Best Market', content: <span className="font-bold text-ink-900 text-sm">{forecast.bestMarket}</span> },
+                { icon: Clock, label: 'Best Window', content: <span className="font-bold text-ink-900 text-sm">{forecast.bestWindow}</span> },
+              ].map(({ icon: Icon, label, content }) => (
+                <div key={label} className="flex items-start justify-between gap-3 py-2.5 border-b border-ink-100 last:border-none">
+                  <div className="flex items-center gap-2 text-xs font-bold text-ink-500 uppercase tracking-wider">
+                    <Icon size={14} className="text-forest-500" />{label}
+                  </div>
+                  {content}
+                </div>
+              ))}
+
+              <div className="mt-2 p-4 rounded-xl bg-forest-950 text-white text-[13px] leading-relaxed">
+                <span className="text-leaf-300 font-bold">{crop}</span> demand is expected to increase by{' '}
+                <span className="font-bold text-white">{forecast.changePct}%</span> in{' '}
+                <span className="text-leaf-300">{location}</span> over the{' '}
+                {windowLabel.toLowerCase()}.
               </div>
             </div>
           ) : (
-            <p className="text-sm text-ink-500">{error || 'Loading recommendation…'}</p>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-sm font-medium text-ink-500">{error || 'Loading recommendation…'}</p>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-5">
-        <ChartCard title="Price intelligence" subtitle="Demo market range ₹27–₹31/kg · suggested range ₹29–₹32/kg">
+      <div className="grid lg:grid-cols-2 gap-5 lg:gap-6">
+        <ChartCard title="Price Intelligence" subtitle="Demo market range ₹27–₹31/kg · suggested ₹29–₹32/kg">
           <PriceTrendChart data={priceTrend} />
-          <p className="mt-2 text-[11px] text-ink-500">Price values are prototype data for demonstrating the recommendation workflow.</p>
+          <p className="mt-2 text-[11px] font-medium text-ink-500">Prototype data for demonstrating the recommendation workflow.</p>
         </ChartCard>
-        <div className="card p-4">
-          <h3 className="font-display font-semibold text-sm text-ink-900">Why this prediction?</h3>
-          <p className="text-xs text-ink-500 mt-1">Illustrative model factors — not calculated feature importance.</p>
-          <div className="mt-4 space-y-3">
-            {[['Historical demand', 82], ['Market price trend', 64], ['Seasonality', 56], ['Local demand', 76], ['Available supply', 42], ['Weather signal (demo)', 48]].map(([label, value]) => (
-              <div key={label} className="grid grid-cols-[135px_1fr] gap-3 items-center text-xs"><span className="text-ink-700">{label}</span><div className="h-2 rounded-full bg-ink-100 overflow-hidden"><div className="h-full rounded-full bg-forest-600" style={{ width: `${value}%` }} /></div></div>
+
+        <div className="card p-6 bg-white">
+          <h3 className="font-display font-bold text-base text-ink-900 tracking-tight mb-1">Why this prediction?</h3>
+          <p className="text-xs font-medium text-ink-500 mb-5">Illustrative model factors — not calculated feature importance.</p>
+          <div className="space-y-4">
+            {FACTORS.map(([label, value]) => (
+              <div key={label}>
+                <div className="flex justify-between text-xs font-bold mb-1.5">
+                  <span className="text-ink-700">{label}</span>
+                  <span className="text-forest-700">{value}%</span>
+                </div>
+                <div className="h-2 w-full bg-sand-100 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-forest-600 to-leaf-400" style={{ width: `${value}%` }} />
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="card p-4">
-        <h3 className="font-display font-semibold text-sm text-ink-900">How it works</h3>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-700">
-          {['Market data', 'Crop data', 'Weather / seasonality', 'Historical orders', 'Data processing', 'ML model', 'Demand forecast', 'Price recommendation'].map((item, index) => <span key={item} className="flex items-center gap-2"><span className="rounded-md bg-leaf-50 px-2.5 py-1.5 text-forest-700 font-medium">{item}</span>{index < 7 && <span className="text-ink-300">→</span>}</span>)}
+      <div className="card p-6 bg-white">
+        <h3 className="font-display font-bold text-base text-ink-900 mb-4 tracking-tight">How it works</h3>
+        <div className="flex flex-wrap items-center gap-2">
+          {PIPELINE.map((item, index) => (
+            <span key={item} className="flex items-center gap-2">
+              <span className="rounded-xl bg-leaf-50 border border-leaf-100 text-forest-700 px-3 py-1.5 text-xs font-bold">{item}</span>
+              {index < PIPELINE.length - 1 && (
+                <span className="text-ink-300 font-bold">→</span>
+              )}
+            </span>
+          ))}
         </div>
       </div>
 
-      <div className="flex items-start gap-2 text-xs text-ink-500 bg-sand-100 rounded-lg p-3">
-        <Info size={14} className="shrink-0 mt-0.5" />
-        These are demonstration / mock values for the SIH 2026 prototype, not real-world market predictions.
-        They are structured so the ML API can supply live values later without changing this page.
+      <div className="flex items-start gap-3 text-sm font-medium text-ink-500 bg-amber-50 border border-amber-200/60 rounded-xl p-4">
+        <Info size={18} className="shrink-0 mt-0.5 text-amber-500" />
+        <span>These are <strong className="text-amber-800">demonstration values</strong> for the SIH 2026 prototype, not real-world market predictions. They are structured so the ML API can supply live values later without changing this page.</span>
       </div>
     </div>
   )

@@ -13,7 +13,7 @@ const TITLES = {
   '/farmer/insights': 'AI Insights',
   '/farmer/profile': 'Profile',
   '/buyer': 'Marketplace',
-  '/buyer/cart': 'Cart',
+  '/buyer/cart': 'Shopping Cart',
   '/buyer/checkout': 'Checkout',
   '/buyer/orders': 'My Orders',
   '/buyer/profile': 'Profile',
@@ -23,7 +23,7 @@ const TITLES = {
   '/admin': 'Platform Overview',
   '/admin/farmers': 'Farmers / FPOs',
   '/admin/buyers': 'Buyers',
-  '/admin/orders': 'Orders',
+  '/admin/orders': 'Platform Orders',
   '/admin/analytics': 'Platform Analytics',
   '/admin/profile': 'Profile',
 }
@@ -43,11 +43,11 @@ export default function DashboardLayout({ allowedRole }) {
   if (allowedRole && user.role !== allowedRole) return <Navigate to={`/${user.role}`} replace />
 
   return (
-    <div className="min-h-screen flex bg-sand-50">
+    <div className="min-h-screen flex bg-sand-50 selection:bg-leaf-300 selection:text-ink-900">
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col relative">
         <Topbar title={titleFor(location.pathname)} onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 p-4 lg:p-7 max-w-[1400px] w-full mx-auto">
+        <main className="flex-1 p-4 lg:p-7 max-w-[1400px] w-full mx-auto relative z-0 animate-fade-up">
           <Outlet />
         </main>
         <Toast toast={toast} onDismiss={dismissToast} />
