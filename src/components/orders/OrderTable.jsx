@@ -26,7 +26,10 @@ export default function OrderTable({ orders, columns = ['id', 'buyer', 'product'
               <tr
                 key={o.id}
                 onClick={() => onRowClick?.(o)}
-                className={`border-t border-ink-100 hover:bg-sand-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                onKeyDown={(event) => { if (onRowClick && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); onRowClick(o) } }}
+                tabIndex={onRowClick ? 0 : undefined}
+                aria-label={onRowClick ? `View order ${o.id}` : undefined}
+                className={`border-t border-ink-100 hover:bg-sand-50 ${onRowClick ? 'cursor-pointer focus:bg-sand-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-forest-600' : ''}`}
               >
                 {columns.map((c) => (
                   <td key={c} className="px-4 py-3 whitespace-nowrap text-ink-700">

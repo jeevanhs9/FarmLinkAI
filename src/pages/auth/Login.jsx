@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { Sprout, Leaf, ShoppingBasket, Truck, ShieldCheck } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 
 const ROLES = [
-  { key: 'farmer', label: 'Farmer / FPO', desc: 'List produce, view AI price insights, track orders.', icon: Leaf },
+  { key: 'farmer', label: 'Farmer / FPO', desc: 'List produce, pool nearby supply, and track orders.', icon: Leaf },
   { key: 'buyer', label: 'Buyer', desc: 'Browse the marketplace and place orders directly.', icon: ShoppingBasket },
-  { key: 'logistics', label: 'Logistics', desc: 'Manage consolidated routes and deliveries.', icon: Truck },
-  { key: 'admin', label: 'Admin', desc: "View platform-wide analytics and manage accounts.", icon: ShieldCheck },
+  { key: 'logistics', label: 'Logistics', desc: 'Coordinate shared pickups and buyer deliveries.', icon: Truck },
+  { key: 'admin', label: 'Admin', desc: 'Review platform activity and participant records.', icon: ShieldCheck },
 ]
 
 export default function Login() {
@@ -34,9 +34,13 @@ export default function Login() {
               Direct Markets.<br />Smarter Decisions.<br />Better Tomorrow.
             </h1>
             <p className="mt-4 text-sm text-leaf-100/80 max-w-sm">
-              A farmer/FPO-to-buyer marketplace that removes unnecessary intermediaries with AI-driven
-              price insight and optimized delivery routing.
+              Connect harvests to real buyer needs, pool small loads, and coordinate delivery through one district-ready marketplace.
             </p>
+            <div className="mt-6 max-w-sm rounded-xl border border-white/15 bg-white/5 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-leaf-300">Farm-to-market workflow</p>
+              <p className="mt-2 text-sm font-semibold text-white">Forecast <span className="text-leaf-300">→</span> Price <span className="text-leaf-300">→</span> Match <span className="text-leaf-300">→</span> Pool <span className="text-leaf-300">→</span> Deliver</p>
+              <p className="mt-2 text-xs text-leaf-100/70">FPO-assisted onboarding · shared transport · buyer order visibility</p>
+            </div>
           </div>
           <div className="hidden lg:flex gap-6 text-xs text-leaf-100/70 mt-10">
             <span>Higher Income for Farmers</span>
@@ -68,8 +72,8 @@ export default function Login() {
               </button>
             ))}
           </div>
-          <p className="text-[11px] text-ink-300 mt-6">
-            Demo login only — no real authentication is performed in this prototype.
+          <p className="text-[11px] text-ink-500 mt-6">
+            Prototype demo access · sample records only · no real authentication or payment is performed.
           </p>
         </div>
       </div>

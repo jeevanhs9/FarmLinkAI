@@ -5,6 +5,7 @@ export default function CategoryFilter({ categories, active, onChange }) {
         <button
           key={cat}
           onClick={() => onChange(cat)}
+          aria-pressed={active === cat}
           className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors focus-ring
             ${active === cat
               ? 'bg-forest-700 border-forest-700 text-white'

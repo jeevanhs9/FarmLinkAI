@@ -1,5 +1,6 @@
-import Badge, { demandTone } from '../ui/Badge'
+import Badge from '../ui/Badge'
 import { formatDate } from '../../utils/format'
+import { demandTone } from '../../utils/demand'
 
 export default function ProductTable({ products }) {
   return (

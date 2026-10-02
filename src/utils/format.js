@@ -1,5 +1,5 @@
 export function formatINR(value) {
-  return '\u20B9' + Number(value).toLocaleString('en-IN', { maximumFractionDigits: 0 })
+  return '\u20B9' + Number(value).toLocaleString('en-IN', { maximumFractionDigits: 2 })
 }
 
 export function formatDate(dateStr) {

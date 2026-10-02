@@ -1,5 +1,6 @@
 import { Sparkles } from 'lucide-react'
-import Badge, { demandTone } from '../ui/Badge'
+import Badge from '../ui/Badge'
+import { demandTone } from '../../utils/demand'
 
 export default function AIRecommendationCard({ crop, image, demand, changePct, priceRange, quantity, compact }) {
   return (

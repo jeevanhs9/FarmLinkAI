@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
 import { formatINR } from '../../utils/format'
+import { calculateOrderSummary } from '../../utils/pricing'
 
 export default function Cart() {
   const { cartItems, updateCartQuantity, removeFromCart } = useApp()
@@ -20,9 +21,7 @@ export default function Cart() {
     )
   }
 
-  const subtotal = cartItems.reduce((s, c) => s + c.product.price * c.quantity, 0)
-  const logistics = Math.round(subtotal * 0.08)
-  const total = subtotal + logistics
+  const { subtotal, logistics, platformFee, total } = calculateOrderSummary(cartItems)
 
   return (
     <div className="grid lg:grid-cols-[1fr_340px] gap-5">
@@ -49,11 +48,11 @@ export default function Cart() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center border border-ink-200 rounded-lg w-fit">
-                      <button onClick={() => updateCartQuantity(product.id, quantity - 10)} className="p-1.5 text-ink-700 hover:text-forest-700 focus-ring" aria-label="Decrease">
+                      <button onClick={() => updateCartQuantity(product.id, quantity - 10)} className="p-1.5 text-ink-700 hover:text-forest-700 focus-ring" aria-label={`Decrease ${product.name} quantity`}>
                         <Minus size={13} />
                       </button>
                       <span className="w-10 text-center text-xs font-semibold">{quantity}</span>
-                      <button onClick={() => updateCartQuantity(product.id, quantity + 10)} className="p-1.5 text-ink-700 hover:text-forest-700 focus-ring" aria-label="Increase">
+                      <button onClick={() => updateCartQuantity(product.id, quantity + 10)} disabled={quantity >= product.quantity} className="p-1.5 text-ink-700 hover:text-forest-700 focus-ring disabled:opacity-40" aria-label={`Increase ${product.name} quantity`}>
                         <Plus size={13} />
                       </button>
                     </div>
@@ -61,7 +60,7 @@ export default function Cart() {
                   <td className="px-4 py-3 text-ink-700">₹{product.price}/{product.unit}</td>
                   <td className="px-4 py-3 font-medium text-ink-900">{formatINR(product.price * quantity)}</td>
                   <td className="px-4 py-3">
-                    <button onClick={() => removeFromCart(product.id)} className="text-ink-300 hover:text-clay-500 focus-ring rounded" aria-label="Remove">
+                    <button onClick={() => removeFromCart(product.id)} className="text-ink-300 hover:text-clay-500 focus-ring rounded" aria-label={`Remove ${product.name} from cart`}>
                       <Trash2 size={16} />
                     </button>
                   </td>
@@ -76,6 +75,7 @@ export default function Cart() {
         <h3 className="font-display font-semibold text-sm text-ink-900">Order Summary</h3>
         <div className="flex justify-between text-sm text-ink-700"><span>Subtotal</span><span>{formatINR(subtotal)}</span></div>
         <div className="flex justify-between text-sm text-ink-700"><span>Logistics</span><span>{formatINR(logistics)}</span></div>
+        <div className="flex justify-between text-sm text-ink-700"><span>Platform fee</span><span>{formatINR(platformFee)}</span></div>
         <div className="border-t border-ink-100 pt-3 flex justify-between font-semibold text-ink-900">
           <span>Total</span><span>{formatINR(total)}</span>
         </div>

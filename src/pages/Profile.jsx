@@ -1,5 +1,5 @@
 import { Mail, Phone, MapPin, Calendar, Building2 } from 'lucide-react'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import { formatDate } from '../utils/format'
 import Button from '../components/ui/Button'
 

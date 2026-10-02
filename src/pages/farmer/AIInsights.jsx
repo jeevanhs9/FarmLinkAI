@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { CheckCircle2, Info } from 'lucide-react'
 import ChartCard from '../../components/charts/ChartCard'
 import DemandForecastChart from '../../components/charts/DemandForecastChart'
-import Badge, { demandTone } from '../../components/ui/Badge'
+import Badge from '../../components/ui/Badge'
 import { insightCrops, insightLocations, insightWindows } from '../../data/insights'
 import { aiService } from '../../services/api'
 import { formatINR } from '../../utils/format'
 import PriceTrendChart from '../../components/charts/PriceTrendChart'
 import { priceTrend } from '../../data/insights'
+import { demandTone } from '../../utils/demand'
 
 const SELECT_CLASS = 'px-3 py-2 rounded-lg border border-ink-200 text-sm bg-white focus-ring focus:border-forest-500'
 
@@ -16,13 +17,14 @@ export default function AIInsights() {
   const [location, setLocation] = useState(insightLocations[0])
   const [windowLabel, setWindowLabel] = useState(insightWindows[1])
   const [forecast, setForecast] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     let active = true
-    setLoading(true)
     aiService.forecast(crop, location, windowLabel).then((data) => {
-      if (active) { setForecast(data); setLoading(false) }
+      if (active) setForecast(data)
+    }).catch(() => {
+      if (active) setError('Forecast data could not be loaded. Please try changing the filters again.')
     })
     return () => { active = false }
   }, [crop, location, windowLabel])
@@ -35,21 +37,24 @@ export default function AIInsights() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <select className={SELECT_CLASS} value={crop} onChange={(e) => setCrop(e.target.value)}>
+        <label className="sr-only" htmlFor="insight-crop">Crop</label>
+        <select id="insight-crop" className={SELECT_CLASS} value={crop} onChange={(e) => { setForecast(null); setError(''); setCrop(e.target.value) }}>
           {insightCrops.map((c) => <option key={c}>{c}</option>)}
         </select>
-        <select className={SELECT_CLASS} value={location} onChange={(e) => setLocation(e.target.value)}>
+        <label className="sr-only" htmlFor="insight-location">Market location</label>
+        <select id="insight-location" className={SELECT_CLASS} value={location} onChange={(e) => { setForecast(null); setError(''); setLocation(e.target.value) }}>
           {insightLocations.map((l) => <option key={l}>{l}</option>)}
         </select>
-        <select className={SELECT_CLASS} value={windowLabel} onChange={(e) => setWindowLabel(e.target.value)}>
+        <label className="sr-only" htmlFor="insight-window">Forecast period</label>
+        <select id="insight-window" className={SELECT_CLASS} value={windowLabel} onChange={(e) => { setForecast(null); setError(''); setWindowLabel(e.target.value) }}>
           {insightWindows.map((w) => <option key={w}>{w}</option>)}
         </select>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
         <ChartCard title="Historical demand vs predicted demand" subtitle="Prototype forecast using demo historical data" className="lg:col-span-2">
-          {loading || !forecast ? (
-            <div className="h-[260px] flex items-center justify-center text-sm text-ink-500">Loading forecast…</div>
+          {!forecast ? (
+            <div className="h-[260px] flex items-center justify-center text-sm text-ink-500" role="status">{error || 'Loading forecast…'}</div>
           ) : (
             <DemandForecastChart data={forecast.series} />
           )}
@@ -57,7 +62,7 @@ export default function AIInsights() {
 
         <div className="card p-4">
           <h3 className="font-display font-semibold text-sm text-ink-900 mb-3">AI Recommendation</h3>
-          {forecast && !loading ? (
+          {forecast ? (
             <div className="space-y-2.5 text-sm">
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={15} className="text-forest-600 shrink-0" />
@@ -86,7 +91,7 @@ export default function AIInsights() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-ink-500">Loading recommendation…</p>
+            <p className="text-sm text-ink-500">{error || 'Loading recommendation…'}</p>
           )}
         </div>
       </div>

@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { MapPin, Star } from 'lucide-react'
-import Badge, { demandTone } from '../ui/Badge'
+import Badge from '../ui/Badge'
 import Button from '../ui/Button'
-import { useApp } from '../../context/AppContext'
+import { demandTone } from '../../utils/demand'
+import { useApp } from '../../context/useApp'
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate()
@@ -41,8 +42,8 @@ export default function ProductCard({ product }) {
             <p className="text-[11px] text-ink-500">{product.quantity.toLocaleString('en-IN')} {product.unit} available</p>
           </div>
         </div>
-        <Button size="sm" className="mt-2 w-full" onClick={() => addToCart(product.id, 10)}>
-          Add to Cart
+        <Button size="sm" className="mt-2 w-full" onClick={() => addToCart(product.id, Math.min(10, product.quantity))} disabled={product.quantity <= 0}>
+          {product.quantity <= 0 ? 'Sold out' : 'Add to Cart'}
         </Button>
       </div>
     </div>

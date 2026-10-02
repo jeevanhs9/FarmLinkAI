@@ -9,6 +9,7 @@ export default function SearchBar({ value, onChange, placeholder = 'Search fresh
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={placeholder}
         className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-ink-200 text-sm bg-white focus-ring focus:border-forest-500 placeholder:text-ink-500"
       />
     </div>

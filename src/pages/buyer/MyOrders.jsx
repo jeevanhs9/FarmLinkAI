@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import OrderTable from '../../components/orders/OrderTable'
 import OrderTimeline from '../../components/orders/OrderTimeline'
 import Modal from '../../components/ui/Modal'
@@ -11,14 +11,13 @@ export default function MyOrders() {
   const { user, orders } = useApp()
   const [selected, setSelected] = useState(null)
   const myOrders = orders.filter((o) => o.buyerId === user.id)
-  const shown = myOrders.length ? myOrders : orders.slice(0, 5)
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-ink-500">{shown.length} orders placed</p>
-      {shown.length ? (
+      <p className="text-sm text-ink-500">{myOrders.length} orders placed</p>
+      {myOrders.length ? (
         <OrderTable
-          orders={shown}
+          orders={myOrders}
           columns={['id', 'farmer', 'product', 'quantity', 'total', 'stage', 'placedOn']}
           onRowClick={setSelected}
         />

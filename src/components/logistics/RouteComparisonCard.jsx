@@ -16,6 +16,15 @@ function RouteBlock({ label, distance, time, cost, highlight }) {
 export default function RouteComparisonCard({ baseline, optimized }) {
   const distanceSaved = Number.parseFloat(baseline.distance) - Number.parseFloat(optimized.distance)
   const costDifference = baseline.cost - optimized.cost
+  const toMinutes = (time) => {
+    const hours = Number(time.match(/(\d+)h/)?.[1] || 0)
+    const minutes = Number(time.match(/(\d+)m/)?.[1] || 0)
+    return hours * 60 + minutes
+  }
+  const minutesSaved = toMinutes(baseline.time) - toMinutes(optimized.time)
+  const timeSaved = minutesSaved >= 60 ? `${Math.floor(minutesSaved / 60)}h ${minutesSaved % 60}m` : `${minutesSaved}m`
+  const distancePercent = Math.round((distanceSaved / Number.parseFloat(baseline.distance)) * 100)
+  const costPercent = Math.round((costDifference / baseline.cost) * 100)
   return (
     <div className="card p-4">
       <h3 className="font-display font-semibold text-sm text-ink-900 mb-3">Route Comparison</h3>
@@ -23,7 +32,7 @@ export default function RouteComparisonCard({ baseline, optimized }) {
         <RouteBlock label="Baseline Route" distance={baseline.distance} time={baseline.time} cost={formatINR(baseline.cost)} />
         <RouteBlock label="Optimized Route" distance={optimized.distance} time={optimized.time} cost={formatINR(optimized.cost)} highlight />
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-sand-100 p-2.5 text-xs"><span className="text-ink-500">Distance difference <b className="text-ink-900">{distanceSaved.toFixed(0)} km</b></span><span className="text-ink-500">Cost difference <b className="text-ink-900">{formatINR(costDifference)}</b></span></div>
+      <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-sand-100 p-2.5 text-xs"><div><span className="block text-ink-500">Distance saved</span><b className="mt-0.5 block text-ink-900">{distanceSaved.toFixed(0)} km · {distancePercent}%</b></div><div><span className="block text-ink-500">Time saved</span><b className="mt-0.5 block text-ink-900">{timeSaved}</b></div><div><span className="block text-ink-500">Cost saved</span><b className="mt-0.5 block text-ink-900">{formatINR(costDifference)} · {costPercent}%</b></div></div>
       <p className="mt-2 text-[11px] text-ink-500">Prototype simulation — comparison figures are demo values.</p>
     </div>
   )

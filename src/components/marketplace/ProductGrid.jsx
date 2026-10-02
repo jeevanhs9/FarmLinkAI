@@ -1,14 +1,16 @@
 import ProductCard from './ProductCard'
 import EmptyState from '../ui/EmptyState'
 import { PackageSearch } from 'lucide-react'
+import Button from '../ui/Button'
 
-export default function ProductGrid({ products }) {
+export default function ProductGrid({ products, onClear }) {
   if (products.length === 0) {
     return (
       <EmptyState
         icon={PackageSearch}
         title="No produce matches your search"
-        description="Try a different keyword or clear the category filter."
+        description="Try a different keyword, market, or category to see more available produce."
+        action={onClear && <Button variant="outline" size="sm" onClick={onClear}>Clear filters</Button>}
       />
     )
   }

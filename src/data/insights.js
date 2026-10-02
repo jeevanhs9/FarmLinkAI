@@ -32,7 +32,7 @@ export function getForecast(crop, location, windowLabel) {
     bestMarket: `${location} ${['North', 'South', 'East', 'Central', 'West'][seed]}`,
     bestWindow: `Next ${seed + 2} Days`,
     changePct: 18 + seed * 5,
-    series: demandSeries.map((d, i) => ({
+    series: demandSeries.map((d) => ({
       ...d,
       predicted: Math.round(d.predicted * (0.85 + seed * 0.08)),
       actual: d.actual ? Math.round(d.actual * (0.85 + seed * 0.06)) : null,

@@ -1,26 +1,24 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Minus, Plus, Star, ShieldCheck, Truck, Sprout } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
-import Badge, { demandTone } from '../../components/ui/Badge'
+import { useApp } from '../../context/useApp'
+import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import PriceBreakdown from '../../components/checkout/PriceBreakdown'
 import EmptyState from '../../components/ui/EmptyState'
+import { demandTone } from '../../utils/demand'
 
 export default function ProductDetails() {
   const { id } = useParams()
   const { listings, addToCart } = useApp()
   const navigate = useNavigate()
   const product = listings.find((p) => p.id === id)
-  const [qty, setQty] = useState(100)
+  const [qty, setQty] = useState(() => product ? Math.min(10, product.quantity) : 0)
   const [added, setAdded] = useState(false)
 
   if (!product) {
     return <EmptyState title="Product not found" description="This listing may have been removed." />
   }
-
-  const logisticsCost = Math.max(2, Math.round(product.price * 0.1))
-  const platformFee = Math.max(1, Math.round(product.price * 0.03))
 
   const handleAdd = () => {
     addToCart(product.id, qty)
@@ -65,19 +63,19 @@ export default function ProductDetails() {
 
           <div className="flex items-center gap-3 mt-5">
             <div className="flex items-center border border-ink-200 rounded-lg">
-              <button onClick={() => setQty((q) => Math.max(10, q - 10))} className="p-2.5 text-ink-700 hover:text-forest-700 focus-ring" aria-label="Decrease quantity">
+              <button onClick={() => setQty((q) => Math.max(1, q - 10))} disabled={qty <= 1} className="p-2.5 text-ink-700 hover:text-forest-700 focus-ring disabled:opacity-40" aria-label="Decrease quantity">
                 <Minus size={15} />
               </button>
-              <span className="w-14 text-center text-sm font-semibold text-ink-900">{qty}</span>
-              <button onClick={() => setQty((q) => Math.min(product.quantity, q + 10))} className="p-2.5 text-ink-700 hover:text-forest-700 focus-ring" aria-label="Increase quantity">
+              <span className="w-14 text-center text-sm font-semibold text-ink-900" aria-live="polite">{qty}</span>
+              <button onClick={() => setQty((q) => Math.min(product.quantity, q + 10))} disabled={qty >= product.quantity} className="p-2.5 text-ink-700 hover:text-forest-700 focus-ring disabled:opacity-40" aria-label="Increase quantity">
                 <Plus size={15} />
               </button>
             </div>
             <span className="text-sm text-ink-500">{product.unit}</span>
           </div>
 
-          <Button className="w-full mt-4" onClick={handleAdd}>
-            {added ? 'Added to Cart ✓' : 'Add to Cart'}
+          <Button className="w-full mt-4" onClick={handleAdd} disabled={product.quantity <= 0}>
+            {product.quantity <= 0 ? 'Sold out' : added ? 'Added to Cart ✓' : 'Add to Cart'}
           </Button>
           <p className="text-xs text-ink-500 mt-2">Expected delivery: 2 – 3 days</p>
 
@@ -88,7 +86,7 @@ export default function ProductDetails() {
           </div>
         </div>
 
-        <PriceBreakdown farmerPrice={product.price} logisticsCost={logisticsCost} platformFee={platformFee} />
+        <PriceBreakdown unitPrice={product.price} unit={product.unit} />
       </div>
     </div>
   )

@@ -3,10 +3,12 @@ import { farmers } from '../../data/farmers'
 import SearchBar from '../../components/marketplace/SearchBar'
 import Badge from '../../components/ui/Badge'
 import { formatDate } from '../../utils/format'
+import EmptyState from '../../components/ui/EmptyState'
+import { Users } from 'lucide-react'
 
 export default function AdminFarmers() {
   const [query, setQuery] = useState('')
-  const filtered = farmers.filter((f) => f.name.toLowerCase().includes(query.toLowerCase()))
+  const filtered = farmers.filter((f) => `${f.name} ${f.location} ${f.crops.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
 
   return (
     <div className="space-y-4">
@@ -14,7 +16,7 @@ export default function AdminFarmers() {
         <SearchBar value={query} onChange={setQuery} placeholder="Search farmers or FPOs..." />
         <p className="text-sm text-ink-500">{filtered.length} of {farmers.length} FPOs</p>
       </div>
-      <div className="card overflow-hidden">
+      {filtered.length === 0 ? <EmptyState icon={Users} title="No FPOs found" description="Try another name, crop, or location." /> : <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -48,7 +50,7 @@ export default function AdminFarmers() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

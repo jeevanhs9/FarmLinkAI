@@ -1,7 +1,8 @@
 import { Users, ShoppingBag, ClipboardList, Package, Info } from 'lucide-react'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { farmers } from '../../data/farmers'
+import { buyers } from '../../data/buyers'
 import { priceTrend, topCrops } from '../../data/insights'
 import StatCard from '../../components/ui/StatCard'
 import ChartCard from '../../components/charts/ChartCard'
@@ -12,15 +13,17 @@ const demandByCrop = [
 ]
 
 export default function AdminDashboard() {
-  const { orders } = useApp()
+  const { orders, listings } = useApp()
+  const activeBuyers = buyers.filter((buyer) => buyer.status === 'Active').length
+  const memberFarmers = farmers.reduce((total, farmer) => total + farmer.members, 0)
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Farmers / FPOs" value="1,284" icon={Users} sub={`${farmers.length} shown in directory`} />
-        <StatCard label="Active Buyers" value="327" icon={ShoppingBag} tone="amber" />
-        <StatCard label="Total Orders" value={(8452).toLocaleString('en-IN')} icon={ClipboardList} />
-        <StatCard label="Produce Traded" value="1,284 tonnes" icon={Package} tone="clay" />
+        <StatCard label="Farmers / FPOs" value={farmers.length.toLocaleString('en-IN')} icon={Users} sub={`${memberFarmers.toLocaleString('en-IN')} members in sample records`} />
+        <StatCard label="Active Buyers" value={activeBuyers.toLocaleString('en-IN')} icon={ShoppingBag} tone="amber" sub={`${buyers.length} sample buyer records`} />
+        <StatCard label="Orders" value={orders.length.toLocaleString('en-IN')} icon={ClipboardList} sub="Current demo order records" />
+        <StatCard label="Produce Listings" value={listings.length.toLocaleString('en-IN')} icon={Package} tone="clay" sub="Available marketplace listings" />
       </div>
 
       <div className="card p-4">
@@ -29,10 +32,10 @@ export default function AdminDashboard() {
           <h3 className="font-display font-semibold text-sm text-ink-900">Demo platform indicators <span className="text-ink-500 font-normal">— illustrative sample data</span></h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-          <div><p className="font-display text-lg font-bold text-forest-700">1,284</p><p className="text-xs text-ink-500">Registered FPOs</p></div>
-          <div><p className="font-display text-lg font-bold text-clay-500">327</p><p className="text-xs text-ink-500">Active buyers</p></div>
-          <div><p className="font-display text-lg font-bold text-forest-700">6</p><p className="text-xs text-ink-500">Orders in today’s demo route</p></div>
-          <div><p className="font-display text-lg font-bold text-forest-700">7</p><p className="text-xs text-ink-500">Produce categories</p></div>
+          <div><p className="font-display text-lg font-bold text-forest-700">{farmers.length}</p><p className="text-xs text-ink-500">FPO sample records</p></div>
+          <div><p className="font-display text-lg font-bold text-clay-500">{memberFarmers.toLocaleString('en-IN')}</p><p className="text-xs text-ink-500">Represented FPO members</p></div>
+          <div><p className="font-display text-lg font-bold text-forest-700">{orders.length}</p><p className="text-xs text-ink-500">Current demo orders</p></div>
+          <div><p className="font-display text-lg font-bold text-forest-700">{listings.length}</p><p className="text-xs text-ink-500">Marketplace listings</p></div>
         </div>
       </div>
 
@@ -91,6 +94,7 @@ export default function AdminDashboard() {
                   <td className="py-2 text-ink-700">{o.stage}</td>
                 </tr>
               ))}
+              {orders.length === 0 && <tr><td colSpan={4} className="py-8 text-center text-sm text-ink-500">There are no orders in the current demo data.</td></tr>}
             </tbody>
           </table>
         </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle2 } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { CATEGORIES } from '../../data/products'
 import Button from '../../components/ui/Button'
 
@@ -9,12 +9,12 @@ const FIELD_CLASS = 'w-full px-3 py-2.5 rounded-lg border border-ink-200 text-sm
 const LABEL_CLASS = 'block text-xs font-medium text-ink-700 mb-1.5'
 
 export default function AddListing() {
-  const { addListing } = useApp()
+  const { addListing, user } = useApp()
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
   const [form, setForm] = useState({
     name: '', category: 'Vegetables', quantity: '', unit: 'kg', price: '',
-    location: '', harvestDate: '', quality: 'Grade A', description: '',
+    location: '', harvestDate: '', quality: 'Grade A', description: '', image: '',
   })
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -32,6 +32,7 @@ export default function AddListing() {
       harvestDate: form.harvestDate || new Date().toISOString().slice(0, 10),
       quality: form.quality,
       description: form.description,
+      image: form.image,
       demand: 'Medium',
     })
     setSubmitted(true)
@@ -46,7 +47,7 @@ export default function AddListing() {
         <h2 className="font-display font-semibold text-lg text-ink-900">Listing added</h2>
         <p className="text-sm text-ink-500 mt-1">{form.name || 'Your produce'} is now visible to buyers on the marketplace.</p>
         <div className="flex justify-center gap-3 mt-6">
-          <Button variant="outline" onClick={() => { setSubmitted(false); setForm({ name: '', category: 'Vegetables', quantity: '', unit: 'kg', price: '', location: '', harvestDate: '', quality: 'Grade A', description: '' }) }}>
+          <Button variant="outline" onClick={() => { setSubmitted(false); setForm({ name: '', category: 'Vegetables', quantity: '', unit: 'kg', price: '', location: '', harvestDate: '', quality: 'Grade A', description: '', image: '' }) }}>
             Add another
           </Button>
           <Button onClick={() => navigate('/farmer/products')}>View My Products</Button>
@@ -64,20 +65,21 @@ export default function AddListing() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASS}>Crop name</label>
-          <input required className={FIELD_CLASS} placeholder="e.g. Tomato" value={form.name} onChange={update('name')} />
+          <label htmlFor="listing-name" className={LABEL_CLASS}>Crop name</label>
+          <input id="listing-name" required maxLength={60} className={FIELD_CLASS} placeholder="e.g. Tomato" value={form.name} onChange={update('name')} />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Category</label>
-          <select className={FIELD_CLASS} value={form.category} onChange={update('category')}>
+          <label htmlFor="listing-category" className={LABEL_CLASS}>Category</label>
+          <select id="listing-category" className={FIELD_CLASS} value={form.category} onChange={update('category')}>
             {CATEGORIES.filter((c) => c !== 'All').map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
         <div>
-          <label className={LABEL_CLASS}>Quantity</label>
+          <label htmlFor="listing-quantity" className={LABEL_CLASS}>Quantity</label>
           <div className="flex gap-2">
-            <input required type="number" min="1" className={FIELD_CLASS} placeholder="500" value={form.quantity} onChange={update('quantity')} />
-            <select className="px-2 rounded-lg border border-ink-200 text-sm bg-white focus-ring" value={form.unit} onChange={update('unit')}>
+            <input id="listing-quantity" required type="number" min="1" step="1" className={FIELD_CLASS} placeholder="500" value={form.quantity} onChange={update('quantity')} />
+            <label htmlFor="listing-unit" className="sr-only">Unit</label>
+            <select id="listing-unit" className="px-2 rounded-lg border border-ink-200 text-sm bg-white focus-ring" value={form.unit} onChange={update('unit')}>
               <option value="kg">kg</option>
               <option value="litre">litre</option>
               <option value="quintal">quintal</option>
@@ -85,20 +87,20 @@ export default function AddListing() {
           </div>
         </div>
         <div>
-          <label className={LABEL_CLASS}>Price (₹ per unit)</label>
-          <input required type="number" min="1" className={FIELD_CLASS} placeholder="30" value={form.price} onChange={update('price')} />
+          <label htmlFor="listing-price" className={LABEL_CLASS}>Price (₹ per unit)</label>
+          <input id="listing-price" required type="number" min="1" step="1" className={FIELD_CLASS} placeholder="30" value={form.price} onChange={update('price')} />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Location</label>
-          <input className={FIELD_CLASS} placeholder="e.g. Kolar, Karnataka" value={form.location} onChange={update('location')} />
+          <label htmlFor="listing-location" className={LABEL_CLASS}>Pickup location</label>
+          <input id="listing-location" className={FIELD_CLASS} placeholder={`e.g. ${user?.location || 'Kolar, Karnataka'}`} value={form.location} onChange={update('location')} />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Harvest date</label>
-          <input type="date" className={FIELD_CLASS} value={form.harvestDate} onChange={update('harvestDate')} />
+          <label htmlFor="listing-harvest-date" className={LABEL_CLASS}>Harvest date</label>
+          <input id="listing-harvest-date" type="date" className={FIELD_CLASS} value={form.harvestDate} onChange={update('harvestDate')} />
         </div>
         <div>
-          <label className={LABEL_CLASS}>Quality grade</label>
-          <select className={FIELD_CLASS} value={form.quality} onChange={update('quality')}>
+          <label htmlFor="listing-quality" className={LABEL_CLASS}>Quality grade</label>
+          <select id="listing-quality" className={FIELD_CLASS} value={form.quality} onChange={update('quality')}>
             <option>Grade A</option>
             <option>Grade B</option>
             <option>Premium</option>
@@ -106,14 +108,15 @@ export default function AddListing() {
           </select>
         </div>
         <div>
-          <label className={LABEL_CLASS}>Images</label>
-          <input type="file" className="w-full text-sm text-ink-500" disabled title="Image upload will connect to storage once the backend is live" />
+          <label htmlFor="listing-image" className={LABEL_CLASS}>Produce image URL <span className="font-normal text-ink-500">(optional)</span></label>
+          <input id="listing-image" type="url" className={FIELD_CLASS} placeholder="https://example.com/tomatoes.jpg" value={form.image} onChange={update('image')} />
+          <p className="mt-1 text-[11px] text-ink-500">Leave blank to use the FarmLink sample image. Direct uploads need the future storage service.</p>
         </div>
       </div>
 
       <div>
-        <label className={LABEL_CLASS}>Description</label>
-        <textarea rows={3} className={FIELD_CLASS} placeholder="Add any details buyers should know..." value={form.description} onChange={update('description')} />
+        <label htmlFor="listing-description" className={LABEL_CLASS}>Description</label>
+        <textarea id="listing-description" rows={3} maxLength={500} className={FIELD_CLASS} placeholder="Harvest timing, growing practices, packaging, or handling notes..." value={form.description} onChange={update('description')} />
       </div>
 
       <div className="flex justify-end gap-3 pt-2">

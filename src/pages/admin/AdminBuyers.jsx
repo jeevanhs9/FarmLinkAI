@@ -3,10 +3,12 @@ import { buyers } from '../../data/buyers'
 import SearchBar from '../../components/marketplace/SearchBar'
 import Badge from '../../components/ui/Badge'
 import { formatDate, formatINR } from '../../utils/format'
+import EmptyState from '../../components/ui/EmptyState'
+import { ShoppingBag } from 'lucide-react'
 
 export default function AdminBuyers() {
   const [query, setQuery] = useState('')
-  const filtered = buyers.filter((b) => b.name.toLowerCase().includes(query.toLowerCase()))
+  const filtered = buyers.filter((b) => `${b.name} ${b.type} ${b.location}`.toLowerCase().includes(query.toLowerCase()))
 
   return (
     <div className="space-y-4">
@@ -14,7 +16,7 @@ export default function AdminBuyers() {
         <SearchBar value={query} onChange={setQuery} placeholder="Search buyers..." />
         <p className="text-sm text-ink-500">{filtered.length} of {buyers.length} buyers</p>
       </div>
-      <div className="card overflow-hidden">
+      {filtered.length === 0 ? <EmptyState icon={ShoppingBag} title="No buyers found" description="Try another buyer name, type, or location." /> : <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -43,7 +45,7 @@ export default function AdminBuyers() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

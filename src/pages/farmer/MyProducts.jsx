@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { PlusCircle, Package } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import ProductTable from '../../components/farmer/ProductTable'
 import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
@@ -9,18 +9,17 @@ export default function MyProducts() {
   const { user, listings } = useApp()
   const navigate = useNavigate()
   const myProducts = listings.filter((p) => p.farmerId === user.id)
-  const shown = myProducts.length ? myProducts : listings.slice(0, 3)
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-ink-500">{shown.length} products listed on the marketplace</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div><h2 className="font-display text-lg font-semibold text-ink-900">Your produce listings</h2><p className="text-sm text-ink-500">Only listings managed by {user.orgName} appear here.</p></div>
         <Button onClick={() => navigate('/farmer/listing/new')}>
           <PlusCircle size={16} /> Add New Listing
         </Button>
       </div>
-      {shown.length > 0 ? (
-        <ProductTable products={shown} />
+      {myProducts.length > 0 ? (
+        <><p className="text-sm text-ink-500">{myProducts.length} products listed on the marketplace</p><ProductTable products={myProducts} /></>
       ) : (
         <EmptyState
           icon={Package}

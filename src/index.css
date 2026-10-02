@@ -58,7 +58,7 @@ h1, h2, h3, h4, .font-display {
 ::-webkit-scrollbar-thumb { background: var(--color-ink-200); border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-ink-300); }
 
-.card {
+:where(.card) {
   background: white;
   border: 1px solid var(--color-ink-100);
   border-radius: 10px;
@@ -77,6 +77,7 @@ h1, h2, h3, h4, .font-display {
 .route-marker { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid white; border-radius: 50%; color: white; font-size: 12px; font-weight: 700; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); }
 .route-marker-pickup { background: var(--color-clay-500); }
 .route-marker-delivery { background: var(--color-forest-700); }
+.route-stop:focus-visible { filter: drop-shadow(0 0 4px #123420); }
 
 .logistics-marker { display:flex; align-items:center; gap:5px; border:2px solid white; border-radius:999px; padding:4px 8px 4px 4px; color:white; font:600 11px var(--font-sans); box-shadow:0 2px 8px rgb(0 0 0 / 24%); white-space:nowrap; }
 .logistics-marker b { display:grid; place-items:center; width:19px; height:19px; border-radius:50%; background:white; color:var(--color-forest-800); }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import Toast from '../ui/Toast'
 
 const TITLES = {

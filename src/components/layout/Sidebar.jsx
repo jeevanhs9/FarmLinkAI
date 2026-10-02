@@ -3,7 +3,7 @@ import {
   Sprout, LayoutGrid, Store, Package, PlusCircle, LineChart, User, LogOut,
   Truck, Map, Users, ShoppingBag, ClipboardList, BarChart3, X,
 } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 
 const NAV = {
   farmer: [

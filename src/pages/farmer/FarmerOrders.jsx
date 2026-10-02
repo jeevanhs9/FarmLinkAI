@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { ORDER_STAGES } from '../../data/orders'
 import OrderTable from '../../components/orders/OrderTable'
 import OrderTimeline from '../../components/orders/OrderTimeline'
@@ -13,14 +13,13 @@ export default function FarmerOrders() {
   const { user, orders, advanceOrderStage } = useApp()
   const [selected, setSelected] = useState(null)
   const myOrders = orders.filter((o) => o.farmerId === user.id)
-  const shown = myOrders.length ? myOrders : orders.slice(0, 5)
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-ink-500">{shown.length} orders for your listed produce</p>
-      {shown.length ? (
+      <p className="text-sm text-ink-500">{myOrders.length} orders for your listed produce</p>
+      {myOrders.length ? (
         <OrderTable
-          orders={shown}
+          orders={myOrders}
           columns={['id', 'buyer', 'product', 'quantity', 'total', 'stage', 'placedOn']}
           onRowClick={setSelected}
         />
