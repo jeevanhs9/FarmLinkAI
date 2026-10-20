@@ -11,6 +11,8 @@ const TITLES = {
   '/farmer/listing/new': 'Add New Listing',
   '/farmer/orders': 'Orders',
   '/farmer/insights': 'AI Insights',
+  '/farmer/pooling': 'Intelligent Load Pooling',
+  '/farmer/offers': 'Buyer Offers & Net Proceeds',
   '/farmer/profile': 'Profile',
   '/buyer': 'Marketplace',
   '/buyer/cart': 'Shopping Cart',
@@ -19,13 +21,16 @@ const TITLES = {
   '/buyer/profile': 'Profile',
   '/logistics': 'Logistics Dashboard',
   '/logistics/routes': 'Route Details',
+  '/logistics/pooling': 'Load Pooling Coordination',
   '/logistics/profile': 'Profile',
   '/admin': 'Platform Overview',
   '/admin/farmers': 'Farmers / FPOs',
   '/admin/buyers': 'Buyers',
   '/admin/orders': 'Platform Orders',
   '/admin/analytics': 'Platform Analytics',
+  '/admin/enterprise': 'SAP Enterprise SCM Gateway',
   '/admin/profile': 'Profile',
+  '/disruptions': 'Supply Chain Disruption Recovery Hub',
 }
 
 function titleFor(pathname) {
@@ -40,7 +45,8 @@ export default function DashboardLayout({ allowedRole }) {
   const location = useLocation()
 
   if (!user) return <Navigate to="/login" replace />
-  if (allowedRole && user.role !== allowedRole) return <Navigate to={`/${user.role}`} replace />
+  const isAllowed = !allowedRole || user.role === allowedRole || (allowedRole === 'farmer' && user.role === 'fpo')
+  if (!isAllowed) return <Navigate to={`/${user.role === 'fpo' ? 'farmer' : user.role}`} replace />
 
   return (
     <div className="min-h-screen flex bg-sand-50 selection:bg-leaf-300 selection:text-ink-900">

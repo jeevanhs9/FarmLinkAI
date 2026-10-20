@@ -4,12 +4,14 @@ import { orders as seedOrders, ORDER_STAGES } from '../data/orders'
 import { demoUsers } from '../data/users'
 import { calculateLinePrice } from '../utils/pricing'
 import { AppContext } from './contextStore'
+import { productService, orderService, notificationService } from '../services/api'
 
 function loadDemoState(key, fallback) {
   try {
     const saved = window.localStorage.getItem(key)
-    const parsed = saved ? JSON.parse(saved) : fallback
-    return Array.isArray(parsed) ? parsed : fallback
+    if (!saved) return fallback
+    const parsed = JSON.parse(saved)
+    return parsed !== null && parsed !== undefined ? parsed : fallback
   } catch {
     return fallback
   }
@@ -19,7 +21,7 @@ function saveDemoState(key, value) {
   try {
     window.localStorage.setItem(key, JSON.stringify(value))
   } catch {
-    // Keep the current session usable when browser storage is full or unavailable.
+    // Graceful silent fallback
   }
 }
 
@@ -32,47 +34,109 @@ function nextNumericId(items, prefix, minimum) {
 }
 
 export function AppProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(() => loadDemoState('farmlink-user', null))
   const [listings, setListings] = useState(() => loadDemoState('farmlink-listings', seedProducts))
   const [orders, setOrders] = useState(() => loadDemoState('farmlink-orders', seedOrders))
   const [cart, setCart] = useState(() => loadDemoState('farmlink-cart', []))
+  const [notifications, setNotifications] = useState([])
   const [toast, setToast] = useState(null)
 
+  useEffect(() => { saveDemoState('farmlink-user', user) }, [user])
   useEffect(() => { saveDemoState('farmlink-listings', listings) }, [listings])
   useEffect(() => { saveDemoState('farmlink-orders', orders) }, [orders])
   useEffect(() => { saveDemoState('farmlink-cart', cart) }, [cart])
+
+  // Initial fetch from backend if active
+  useEffect(() => {
+    let mounted = true
+    productService.list().then((prods) => {
+      if (mounted && prods && prods.length) {
+        setListings((curr) => {
+          // Merge to preserve newly added local items
+          const ids = new Set(curr.map(c => c.id))
+          const merged = [...curr]
+          prods.forEach(p => { if (!ids.has(p.id)) merged.push(p) })
+          return merged
+        })
+      }
+    })
+
+    orderService.list().then((ords) => {
+      if (mounted && ords && ords.length) {
+        setOrders((curr) => {
+          const ids = new Set(curr.map(c => c.id))
+          const merged = [...curr]
+          ords.forEach(o => { if (!ids.has(o.id)) merged.push(o) })
+          return merged
+        })
+      }
+    })
+
+    notificationService.list().then((notifs) => {
+      if (mounted && notifs) setNotifications(notifs)
+    })
+
+    return () => { mounted = false }
+  }, [])
 
   const notify = useCallback((message, tone = 'success') => {
     setToast({ message, tone, id: Date.now() })
   }, [])
 
   const login = useCallback((role) => {
-    if (demoUsers[role]) setUser(demoUsers[role])
+    if (demoUsers[role]) {
+      setUser(demoUsers[role])
+    }
   }, [])
 
   const logout = useCallback(() => {
     setUser(null)
     setCart([])
+    try { window.localStorage.removeItem('farmlink-user') } catch {}
   }, [])
 
   const addListing = useCallback((listing) => {
+    const newId = nextNumericId(listings, 'p', 100)
     const newListing = {
-      id: nextNumericId(listings, 'p', 100),
+      id: newId,
       farmerId: user?.id ?? 'f1',
       farmer: user?.orgName ?? "Farmer's Listing",
       demand: 'Medium',
-      rating: 0,
-      reviews: 0,
+      rating: 4.8,
+      reviews: 1,
       image: listing.image || 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?q=80&w=800&auto=format&fit=crop',
       ...listing,
-      location: listing.location?.trim() || user?.location || '',
+      location: listing.location?.trim() || user?.location || 'Kolar, Karnataka',
       quantity: Math.max(0, Number(listing.quantity) || 0),
       price: Math.max(0, Number(listing.price) || 0),
+      isActive: true,
     }
     setListings((prev) => [newListing, ...prev])
+    productService.create(newListing).catch(() => {})
     notify(`${newListing.name} has been added to your listings.`)
     return newListing
   }, [listings, user, notify])
+
+  const editListing = useCallback((listingId, updates) => {
+    setListings((prev) => prev.map((item) => {
+      if (item.id !== listingId) return item
+      const updated = {
+        ...item,
+        ...updates,
+        price: updates.price !== undefined ? Math.max(0, Number(updates.price) || 0) : item.price,
+        quantity: updates.quantity !== undefined ? Math.max(0, Number(updates.quantity) || 0) : item.quantity,
+      }
+      productService.update(listingId, updated).catch(() => {})
+      return updated
+    }))
+    notify('Produce listing updated successfully.')
+  }, [notify])
+
+  const deleteListing = useCallback((listingId) => {
+    setListings((prev) => prev.filter((item) => item.id !== listingId))
+    productService.delete(listingId).catch(() => {})
+    notify('Listing deactivated and removed from active marketplace.', 'info')
+  }, [notify])
 
   const addToCart = useCallback((productId, quantity) => {
     const product = listings.find((item) => item.id === productId)
@@ -158,13 +222,23 @@ export function AppProvider({ children }) {
         deliveryLocation: deliveryLocation.trim(),
       }
     })
+
     setOrders((prev) => [...newOrders, ...prev])
     const purchased = new Map(validItems.map((item) => [item.product.id, item.quantity]))
     setListings((prev) => prev.map((product) => purchased.has(product.id)
       ? { ...product, quantity: Math.max(0, product.quantity - purchased.get(product.id)) }
       : product))
     clearCart()
-    notify(`${newOrders.length} order${newOrders.length === 1 ? '' : 's'} placed. This is a demo checkout.`)
+
+    // Trigger backend order placement asynchronously
+    orderService.placeOrder({
+      items: validItems.map(i => ({ productId: i.product.id, quantity: i.quantity })),
+      buyerId: user?.id ?? 'b1',
+      deliveryLocation: deliveryLocation.trim(),
+      paymentMethod,
+    }).catch(() => {})
+
+    notify(`${newOrders.length} order${newOrders.length === 1 ? '' : 's'} placed successfully.`)
     return newOrders
   }, [cartItems, orders, user, clearCart, notify])
 
@@ -173,15 +247,35 @@ export function AppProvider({ children }) {
       if (order.id !== orderId) return order
       const index = ORDER_STAGES.indexOf(order.stage)
       const next = ORDER_STAGES[Math.min(index + 1, ORDER_STAGES.length - 1)]
+      orderService.advanceStage(orderId, next).catch(() => {})
       return { ...order, stage: next }
     }))
   }, [])
 
+  const cancelOrder = useCallback((orderId, reason = 'Buyer cancellation request') => {
+    setOrders((prev) => prev.map((order) => {
+      if (order.id !== orderId) return order
+      return { ...order, stage: 'Cancelled', isDisrupted: true, disruptionReason: reason }
+    }))
+    orderService.cancelOrder(orderId, reason).catch(() => {})
+    notify(`Order ${orderId} has been marked as Cancelled. Disruption recorded.`, 'info')
+  }, [notify])
+
+  const markNotificationRead = useCallback((id) => {
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n))
+    notificationService.markRead(id).catch(() => {})
+  }, [])
+
+  const unreadNotificationsCount = useMemo(() => {
+    return notifications.filter(n => !n.isRead).length
+  }, [notifications])
+
   const value = {
     user, login, logout,
-    listings, addListing,
-    orders, advanceOrderStage,
+    listings, addListing, editListing, deleteListing,
+    orders, advanceOrderStage, cancelOrder,
     cart, cartItems, cartCount, addToCart, updateCartQuantity, removeFromCart, clearCart, placeOrder,
+    notifications, unreadNotificationsCount, markNotificationRead,
     toast, dismissToast: () => setToast(null), notify,
   }
 

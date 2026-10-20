@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   Sprout, LayoutGrid, Store, Package, PlusCircle, LineChart, User, LogOut,
   Truck, Map, Users, ShoppingBag, ClipboardList, BarChart3, X,
+  TrendingUp, AlertTriangle, Server, Layers,
 } from 'lucide-react'
 import { useApp } from '../../context/useApp'
 
@@ -10,6 +11,20 @@ const NAV = {
     { to: '/farmer', label: 'Dashboard', icon: LayoutGrid, end: true },
     { to: '/farmer/products', label: 'My Products', icon: Package },
     { to: '/farmer/listing/new', label: 'Add New Listing', icon: PlusCircle },
+    { to: '/farmer/pooling', label: 'Load Pooling', icon: Truck },
+    { to: '/farmer/offers', label: 'Buyer Offers', icon: TrendingUp },
+    { to: '/disruptions', label: 'Disruption Hub', icon: AlertTriangle },
+    { to: '/farmer/orders', label: 'Orders', icon: ClipboardList },
+    { to: '/farmer/insights', label: 'AI Insights', icon: LineChart },
+    { to: '/farmer/profile', label: 'Profile', icon: User },
+  ],
+  fpo: [
+    { to: '/farmer', label: 'FPO Dashboard', icon: LayoutGrid, end: true },
+    { to: '/farmer/products', label: 'Collective Stock', icon: Package },
+    { to: '/farmer/listing/new', label: 'Add Lot Listing', icon: PlusCircle },
+    { to: '/farmer/pooling', label: 'Load Pooling', icon: Truck },
+    { to: '/farmer/offers', label: 'Buyer Offers', icon: TrendingUp },
+    { to: '/disruptions', label: 'Disruption Hub', icon: AlertTriangle },
     { to: '/farmer/orders', label: 'Orders', icon: ClipboardList },
     { to: '/farmer/insights', label: 'AI Insights', icon: LineChart },
     { to: '/farmer/profile', label: 'Profile', icon: User },
@@ -18,11 +33,14 @@ const NAV = {
     { to: '/buyer', label: 'Marketplace', icon: Store, end: true },
     { to: '/buyer/cart', label: 'Cart', icon: ShoppingBag },
     { to: '/buyer/orders', label: 'My Orders', icon: ClipboardList },
+    { to: '/disruptions', label: 'Disruption Hub', icon: AlertTriangle },
     { to: '/buyer/profile', label: 'Profile', icon: User },
   ],
   logistics: [
     { to: '/logistics', label: 'Dashboard', icon: Truck, end: true },
     { to: '/logistics/routes', label: 'Route Details', icon: Map },
+    { to: '/farmer/pooling', label: 'Load Pooling', icon: Layers },
+    { to: '/disruptions', label: 'Disruption Hub', icon: AlertTriangle },
     { to: '/logistics/profile', label: 'Profile', icon: User },
   ],
   admin: [
@@ -30,7 +48,9 @@ const NAV = {
     { to: '/admin/farmers', label: 'Farmers / FPOs', icon: Users },
     { to: '/admin/buyers', label: 'Buyers', icon: ShoppingBag },
     { to: '/admin/orders', label: 'Orders', icon: ClipboardList },
-    { to: '/admin/analytics', label: 'Platform Analytics', icon: BarChart3 },
+    { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    { to: '/admin/enterprise', label: 'SAP Gateway', icon: Server },
+    { to: '/disruptions', label: 'Disruption Hub', icon: AlertTriangle },
     { to: '/admin/profile', label: 'Profile', icon: User },
   ],
 }
@@ -40,9 +60,10 @@ export default function Sidebar({ mobileOpen, onClose }) {
   const items = NAV[user?.role] ?? []
 
   const roleLabels = {
-    farmer: 'Farmer / FPO',
+    farmer: 'Farmer / Producer',
+    fpo: 'FPO Coordinator',
     buyer: 'Buyer Workspace',
-    logistics: 'Logistics',
+    logistics: 'Logistics Hub',
     admin: 'Platform Admin',
   }
 

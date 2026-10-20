@@ -10,6 +10,10 @@ const MyProducts = lazy(() => import('./pages/farmer/MyProducts'))
 const AddListing = lazy(() => import('./pages/farmer/AddListing'))
 const FarmerOrders = lazy(() => import('./pages/farmer/FarmerOrders'))
 const AIInsights = lazy(() => import('./pages/farmer/AIInsights'))
+const LoadPooling = lazy(() => import('./pages/farmer/LoadPooling'))
+const OfferComparison = lazy(() => import('./pages/farmer/OfferComparison'))
+const DisruptionRecovery = lazy(() => import('./pages/DisruptionRecovery'))
+const EnterpriseGateway = lazy(() => import('./pages/admin/EnterpriseGateway'))
 const Marketplace = lazy(() => import('./pages/buyer/Marketplace'))
 const ProductDetails = lazy(() => import('./pages/buyer/ProductDetails'))
 const Cart = lazy(() => import('./pages/buyer/Cart'))
@@ -36,6 +40,8 @@ export default function App() {
               <Route index element={<FarmerDashboard />} />
               <Route path="products" element={<MyProducts />} />
               <Route path="listing/new" element={<AddListing />} />
+              <Route path="pooling" element={<LoadPooling />} />
+              <Route path="offers" element={<OfferComparison />} />
               <Route path="orders" element={<FarmerOrders />} />
               <Route path="insights" element={<AIInsights />} />
               <Route path="profile" element={<Profile />} />
@@ -62,7 +68,12 @@ export default function App() {
               <Route path="buyers" element={<AdminBuyers />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="analytics" element={<PlatformAnalytics />} />
+              <Route path="enterprise" element={<EnterpriseGateway />} />
               <Route path="profile" element={<Profile />} />
+            </Route>
+
+            <Route path="/disruptions" element={<DashboardLayout />}>
+              <Route index element={<DisruptionRecovery />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/login" replace />} />

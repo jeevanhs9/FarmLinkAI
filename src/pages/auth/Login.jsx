@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom'
-import { Sprout, Leaf, ShoppingBasket, Truck, ShieldCheck, ArrowRight } from 'lucide-react'
+import { Sprout, Leaf, ShoppingBasket, Truck, ShieldCheck, ArrowRight, Users } from 'lucide-react'
 import { useApp } from '../../context/useApp'
 
 const ROLES = [
-  { key: 'farmer', label: 'Farmer / FPO', desc: 'List produce, pool nearby supply, and track orders.', icon: Leaf },
-  { key: 'buyer', label: 'Buyer', desc: 'Browse the marketplace and place orders directly.', icon: ShoppingBasket },
-  { key: 'logistics', label: 'Logistics', desc: 'Coordinate shared pickups and buyer deliveries.', icon: Truck },
-  { key: 'admin', label: 'Admin', desc: 'Review platform activity and participant records.', icon: ShieldCheck },
+  { key: 'farmer', label: 'Farmer / Producer', desc: 'List produce, compare buyer bids, and review load pooling.', icon: Leaf },
+  { key: 'fpo', label: 'FPO / Cooperative Coordinator', desc: 'Aggregate member harvests, organize shared logistics runs.', icon: Users },
+  { key: 'buyer', label: 'Authorized Buyer', desc: 'Discover fresh supply, place orders, and track delivery ETAs.', icon: ShoppingBasket },
+  { key: 'logistics', label: 'Logistics Provider', desc: 'Dispatch multi-stop vehicle routes and track consolidated loads.', icon: Truck },
+  { key: 'admin', label: 'Platform Administrator', desc: 'Enterprise SCM gateway, live analytics, and disruption recovery.', icon: ShieldCheck },
 ]
 
 export default function Login() {
@@ -15,7 +16,8 @@ export default function Login() {
 
   const handleSelect = (role) => {
     login(role)
-    navigate(`/${role}`)
+    if (role === 'fpo') navigate('/farmer')
+    else navigate(`/${role}`)
   }
 
   return (
@@ -84,7 +86,7 @@ export default function Login() {
           <div className="mb-8">
             <h2 className="font-display text-2xl font-bold text-ink-900 tracking-tight">Sign in to workspace</h2>
             <p className="text-[15px] text-ink-500 mt-2">
-              This is a prototype build for SIH 2026 — choose a role below to continue with a demo login.
+              Prepared for SAP Hackfest Bengaluru 2026 (Resilient Supply Chains) — select an authorized role below to sign in.
             </p>
           </div>
 

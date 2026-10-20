@@ -445,8 +445,8 @@ function HarvestValue({ value, forecastValue }) {
               <p className="font-display font-bold text-lg text-forest-700">{formatINR(forecastValue)}</p>
             </div>
             {difference !== 0 && (
-              <Badge tone="success" className="shadow-sm">
-                +{formatINR(difference)} optimal
+              <Badge tone={isPositive ? 'success' : 'clay'} className="shadow-sm">
+                {isPositive ? `+${formatINR(difference)} optimal` : `${formatINR(difference)}`}
               </Badge>
             )}
           </div>

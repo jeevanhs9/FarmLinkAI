@@ -2,14 +2,14 @@ import { CheckCircle2, CircleAlert, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export default function Toast({ toast, onDismiss }) {
-  const [isClosing, setIsClosing] = useState(false)
+  const [closingId, setClosingId] = useState(null)
   const duration = 3200
+  const isClosing = toast ? closingId === toast.id : false
 
   useEffect(() => {
     if (!toast) return
-    setIsClosing(false)
     const timer = window.setTimeout(() => {
-      setIsClosing(true)
+      setClosingId(toast.id)
       setTimeout(onDismiss, 200) // allow CSS exit animation to play
     }, duration)
     return () => window.clearTimeout(timer)

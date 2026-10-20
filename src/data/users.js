@@ -10,6 +10,17 @@ export const demoUsers = {
     joined: '2025-02-11',
     avatar: 'https://images.unsplash.com/photo-1595475207225-428b62bda831?q=80&w=200&auto=format&fit=crop',
   },
+  fpo: {
+    role: 'fpo',
+    id: 'f2',
+    name: 'Manjunath Byregowda',
+    orgName: 'Namma Raitha FPO Collective',
+    location: 'Chikkaballapur, Karnataka',
+    phone: '+91 98450 67890',
+    email: 'manjunath.fpo@farmlink.ai',
+    joined: '2025-01-20',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+  },
   buyer: {
     role: 'buyer',
     id: 'b1',
