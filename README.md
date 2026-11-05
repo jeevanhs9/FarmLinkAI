@@ -258,3 +258,5 @@ Copy `.env.example` to `.env` only if you need Google Maps. The offline route il
 Built for **SAP Hackfest 2026 Bengaluru** — demonstrating Domain + Technology + Business perspectives on agricultural supply chain resilience through AI and enterprise integration.
 
 UN SDG alignment: **#2 Zero Hunger · #8 Decent Work · #12 Responsible Consumption · #13 Climate Action**
+#   F a r m s l i n k a i  
+ 
