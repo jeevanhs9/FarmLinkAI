@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AlertTriangle, CheckCircle2, RefreshCw, UserCheck, Sparkles, Building2 } from 'lucide-react'
 import { useApp } from '../context/useApp'
 import { disruptionService } from '../services/api'
